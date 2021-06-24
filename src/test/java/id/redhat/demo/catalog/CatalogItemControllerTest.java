@@ -9,14 +9,17 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest
@@ -40,7 +43,28 @@ class CatalogItemControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.get("/v1/catalog/items")
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(5)))
+                .andExpect(jsonPath("$", hasSize(5)))
+                .andDo(print());
+    }
+
+    @Test
+    void getSingleCatalogItem() throws Exception {
+        CatalogItem item = new CatalogItem("Rode", "USB-C Microphone", 2500000);
+        when(catalogService.getSingleCatalogItem(item.getId())).thenReturn(item);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/v1/catalog/items/" + item.getId())
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.itemName", is(item.getItemName())))
+                .andDo(print());
+    }
+
+    @Test
+    void getNotAvailableItem() throws Exception {
+        when(catalogService.getSingleCatalogItem(1000)).thenThrow(EntityNotFoundException.class);
+        mockMvc.perform(MockMvcRequestBuilders.get("/v1/catalog/items/1000")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
                 .andDo(print());
     }
 }
