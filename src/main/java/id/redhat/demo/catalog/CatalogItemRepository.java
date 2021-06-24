@@ -1,6 +1,8 @@
 package id.redhat.demo.catalog;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public interface CatalogItemRepository extends CrudRepository<CatalogItem, Long> {
+@Repository("catalogItemRepository")
+public interface CatalogItemRepository extends JpaRepository<CatalogItem, Long> {
 }
