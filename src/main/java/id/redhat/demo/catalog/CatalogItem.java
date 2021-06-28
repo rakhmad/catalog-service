@@ -15,8 +15,10 @@ public class CatalogItem {
      * 4. Short Description
      * 5. Long Description
      * 6. Price
-     * 7. Image
+     * 7. Image URI
      * 8. Enabled (can be seen)
+     * 9. Item UPC
+     * 10. Item SKU
      */
 
     @Id
@@ -36,6 +38,10 @@ public class CatalogItem {
     private String imageURI = "/images/default.png";
     @Column(nullable = false)
     private boolean itemEnabled = true;
+    @Column(nullable = false, name = "item_upc")
+    private String itemUPC = "S123456M789012E";
+    @Column(nullable = false, name = "item_sku")
+    private String itemSKU = "SKU-XX-YYY-01";
 
     public CatalogItem(String itemName, Category itemCategory, String shortDescription, String longDescription, double itemPrice, String imageURI) {
         this.itemName = itemName;
@@ -111,7 +117,27 @@ public class CatalogItem {
         this.imageURI = imageURI;
     }
 
+    public boolean isItemEnabled() {
+        return itemEnabled;
+    }
+
     public void setItemEnabled(boolean itemEnabled) {
         this.itemEnabled = itemEnabled;
+    }
+
+    public String getItemUPC() {
+        return itemUPC;
+    }
+
+    public void setItemUPC(String itemUPC) {
+        this.itemUPC = itemUPC;
+    }
+
+    public String getItemSKU() {
+        return itemSKU;
+    }
+
+    public void setItemSKU(String itemSKU) {
+        this.itemSKU = itemSKU;
     }
 }
