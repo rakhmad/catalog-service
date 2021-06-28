@@ -17,7 +17,11 @@ public class CatalogService {
         return catalogItemRepository.findAll();
     }
 
-    public CatalogItem getSingleCatalogItem(long id) {
-        return catalogItemRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+    public CatalogItem getCatalogItemById(long id) {
+        return catalogItemRepository.findCatalogItemById(id).orElseThrow(EntityNotFoundException::new);
+    }
+
+    public CatalogItem getCatalogItemBySKU(String itemSKU) {
+        return catalogItemRepository.findCatalogItemByItemSKU(itemSKU).orElseThrow(EntityNotFoundException::new);
     }
 }
