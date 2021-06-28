@@ -27,10 +27,19 @@ public class CatalogItemController {
         return new ResponseEntity<>(catalogService.getAllCatalogItems(), HttpStatus.OK);
     }
 
-    @GetMapping("/v1/catalog/items/{id}")
-    public ResponseEntity<CatalogItem> getSingleCatalogItem(@PathVariable long id) {
+    @GetMapping("/v1/catalog/items/id/{id}")
+    public ResponseEntity<CatalogItem> getCatalogItemById(@PathVariable("id") long id) {
         try {
-            return new ResponseEntity<>(catalogService.getSingleCatalogItem(id), HttpStatus.OK);
+            return new ResponseEntity<>(catalogService.getCatalogItemById(id), HttpStatus.OK);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/v1/catalog/items/sku/{sku}")
+    public ResponseEntity<CatalogItem> getCatalogItemBySku(@PathVariable("sku") String itemSKU) {
+        try {
+            return new ResponseEntity<>(catalogService.getCatalogItemBySKU(itemSKU), HttpStatus.OK);
         } catch (EntityNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
