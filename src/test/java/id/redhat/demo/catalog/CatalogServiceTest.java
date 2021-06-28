@@ -4,9 +4,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 class CatalogServiceTest {
@@ -15,16 +17,63 @@ class CatalogServiceTest {
     private CatalogItemRepository catalogItemRepository;
 
     @Test
-    void getAllTodos() {
-        CatalogItem item = new CatalogItem("Logitech", "Mouse Bluetooth", 150000);
-        catalogItemRepository.save(item);
+    void itShouldReturnAllAvailableCatalogItems() {
+        CatalogItem expected = new CatalogItem("Logitech", "Mouse Bluetooth", 150000);
+        catalogItemRepository.save(expected);
         CatalogService catalogService = new CatalogService(catalogItemRepository);
 
         List<CatalogItem> catalogItemList = catalogService.getAllCatalogItems();
-        CatalogItem catalogItem = catalogItemList.get(catalogItemList.size() - 1);
+        CatalogItem result = catalogItemList.get(catalogItemList.size() - 1);
 
-        assertEquals(item.getItemName(), catalogItem.getItemName());
-        assertEquals(item.getId(), catalogItem.getId());
-        assertEquals(item.getItemPrice(), catalogItem.getItemPrice());
+        assertEquals(expected.getItemName(), result.getItemName());
+        assertEquals(expected.getId(), result.getId());
+        assertEquals(expected.getItemPrice(), result.getItemPrice());
+    }
+
+    @Test
+    void itShouldReturnSingleCatalogItem() {
+        CatalogItem expected = new CatalogItem("Logitech", "Mouse Bluetooth", 150000);
+        catalogItemRepository.save(expected);
+        CatalogService catalogService = new CatalogService(catalogItemRepository);
+
+        CatalogItem result = catalogService.getCatalogItemById(expected.getId());
+        assertEquals(expected.getId(), result.getId());
+        assertEquals(expected.getItemName(), result.getItemName());
+        assertEquals(expected.getItemPrice(), result.getItemPrice());
+    }
+
+    @Test
+    void itShouldThrowExceptionWhenNoIdFound() {
+        CatalogService catalogService = new CatalogService(catalogItemRepository);
+        assertThrows(EntityNotFoundException.class,
+                () -> {
+                    CatalogItem result = catalogService.getCatalogItemById(0);
+                });
+    }
+
+    @Test
+    void itShouldSearchBySKU() {
+        String itemSKU = "SKU-TES-T1-123";
+        CatalogItem expected = new CatalogItem("Logitech", "Mouse Bluetooth", 150000);
+        expected.setItemSKU(itemSKU);
+        catalogItemRepository.save(expected);
+        CatalogService catalogService = new CatalogService(catalogItemRepository);
+
+        CatalogItem result = catalogService.getCatalogItemBySKU(itemSKU);
+        assertEquals(expected.getId(), result.getId());
+        assertEquals(expected.getItemUPC(), result.getItemUPC());
+        assertEquals(expected.getItemSKU(), result.getItemSKU());
+        assertEquals(expected.getItemName(), result.getItemName());
+        assertEquals(expected.getItemPrice(), result.getItemPrice());
+
+    }
+
+    @Test
+    void itShouldThrowExceptionWhenNoSKUFound() {
+        CatalogService catalogService = new CatalogService(catalogItemRepository);
+        assertThrows(EntityNotFoundException.class,
+                () -> {
+                    CatalogItem result = catalogService.getCatalogItemBySKU("0000000");
+                });
     }
 }

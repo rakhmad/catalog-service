@@ -9,14 +9,17 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest
@@ -40,7 +43,55 @@ class CatalogItemControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.get("/v1/catalog/items")
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(5)))
+                .andExpect(jsonPath("$", hasSize(5)))
                 .andDo(print());
     }
+
+    @Test
+    void getCatalogItemById() throws Exception {
+        long itemId = 1500L;
+        CatalogItem item = new CatalogItem("Rode", "USB-C Microphone", 2500000);
+        item.setId(itemId);
+        when(catalogService.getCatalogItemById(itemId)).thenReturn(item);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/v1/catalog/items/id/" + itemId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.itemName", is(item.getItemName())))
+                .andDo(print());
+    }
+
+    @Test
+    void getNotAvailableItemById() throws Exception {
+        when(catalogService.getCatalogItemById(1000)).thenThrow(EntityNotFoundException.class);
+        mockMvc.perform(MockMvcRequestBuilders.get("/v1/catalog/items/id/1000")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andDo(print());
+    }
+
+    @Test
+    void getCatalogItemBySKU() throws Exception {
+        String itemSKU = "SKU-AAA-BB-123";
+        CatalogItem item = new CatalogItem("Rode", "USB-C Microphone", 2500000);
+        item.setItemSKU(itemSKU);
+        when(catalogService.getCatalogItemBySKU(itemSKU)).thenReturn(item);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/v1/catalog/items/sku/SKU-AAA-BB-123")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.itemName", is(item.getItemName())))
+                .andExpect(jsonPath("$.itemSKU", is(item.getItemSKU())))
+                .andDo(print());
+    }
+
+    @Test
+    void getNotAvailableItemBySku() throws Exception {
+        when(catalogService.getCatalogItemBySKU("ABCDEFGA")).thenThrow(EntityNotFoundException.class);
+        mockMvc.perform(MockMvcRequestBuilders.get("/v1/catalog/items/sku/ABCDEFGA")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andDo(print());
+    }
+
 }
