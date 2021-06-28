@@ -36,18 +36,44 @@ class CatalogServiceTest {
         catalogItemRepository.save(expected);
         CatalogService catalogService = new CatalogService(catalogItemRepository);
 
-        CatalogItem result = catalogService.getSingleCatalogItem(expected.getId());
+        CatalogItem result = catalogService.getCatalogItemById(expected.getId());
         assertEquals(expected.getId(), result.getId());
         assertEquals(expected.getItemName(), result.getItemName());
         assertEquals(expected.getItemPrice(), result.getItemPrice());
     }
 
     @Test
-    void itShouldThrowsEntityNotFoundException() {
+    void itShouldThrowExceptionWhenNoIdFound() {
         CatalogService catalogService = new CatalogService(catalogItemRepository);
         assertThrows(EntityNotFoundException.class,
                 () -> {
-                    CatalogItem result = catalogService.getSingleCatalogItem(0);
+                    CatalogItem result = catalogService.getCatalogItemById(0);
+                });
+    }
+
+    @Test
+    void itShouldSearchBySKU() {
+        String itemSKU = "SKU-TES-T1-123";
+        CatalogItem expected = new CatalogItem("Logitech", "Mouse Bluetooth", 150000);
+        expected.setItemSKU(itemSKU);
+        catalogItemRepository.save(expected);
+        CatalogService catalogService = new CatalogService(catalogItemRepository);
+
+        CatalogItem result = catalogService.getCatalogItemBySKU(itemSKU);
+        assertEquals(expected.getId(), result.getId());
+        assertEquals(expected.getItemUPC(), result.getItemUPC());
+        assertEquals(expected.getItemSKU(), result.getItemSKU());
+        assertEquals(expected.getItemName(), result.getItemName());
+        assertEquals(expected.getItemPrice(), result.getItemPrice());
+
+    }
+
+    @Test
+    void itShouldThrowExceptionWhenNoSKUFound() {
+        CatalogService catalogService = new CatalogService(catalogItemRepository);
+        assertThrows(EntityNotFoundException.class,
+                () -> {
+                    CatalogItem result = catalogService.getCatalogItemBySKU("0000000");
                 });
     }
 }
