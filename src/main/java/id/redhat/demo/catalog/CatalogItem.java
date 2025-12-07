@@ -1,45 +1,46 @@
 package id.redhat.demo.catalog;
 
-import javax.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "catalog_item")
 public class CatalogItem {
-    /**
-     * Catalog contains multiple CatalogItems
-     * CatalogItems is representation for an item in the catalog.
-     * Properties for an CatalogItem
-     * 1. id
-     * 2. Name
-     * 3. Category
-     * 4. Short Description
-     * 5. Long Description
-     * 6. Price
-     * 7. Image URI
-     * 8. Enabled (can be seen)
-     * 9. Item UPC
-     * 10. Item SKU
-     */
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
+
     @Column(nullable = false)
     private String itemName;
+
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Category itemCategory = Category.GENERIC;
+
     @Column(nullable = false)
     private String shortDescription;
+
     @Column(nullable = false, columnDefinition = "TEXT")
     private String longDescription = "Long Default Description";
+
     @Column(precision = 2)
     private double itemPrice;
+
     @Column(name = "image_uri")
     private String imageURI = "/images/default.png";
-    @Column(nullable = false)
+
+    @Column(nullable = false, name = "item_enabled")
     private boolean itemEnabled = true;
+
     @Column(nullable = false, name = "item_upc")
     private String itemUPC = "S123456M789012E";
+
     @Column(nullable = false, name = "item_sku")
     private String itemSKU = "SKU-XX-YYY-01";
 

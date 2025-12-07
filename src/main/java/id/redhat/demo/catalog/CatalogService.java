@@ -1,27 +1,29 @@
 package id.redhat.demo.catalog;
 
-import org.springframework.stereotype.Service;
+import io.smallrye.mutiny.Uni;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.NotFoundException;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
-@Service
+@ApplicationScoped
 public class CatalogService {
-    private final CatalogItemRepository catalogItemRepository;
 
-    public CatalogService(CatalogItemRepository catalogItemRepository) {
-        this.catalogItemRepository = catalogItemRepository;
+    @Inject
+    CatalogItemRepository catalogItemRepository;
+
+    public Uni<List<CatalogItem>> getAllCatalogItems() {
+        return catalogItemRepository.listAll();
     }
 
-    public List<CatalogItem> getAllCatalogItems() {
-        return catalogItemRepository.findAll();
+    public Uni<CatalogItem> getCatalogItemById(long id) {
+        return catalogItemRepository.findByItemId(id)
+                .onItem().ifNull().failWith(() -> new NotFoundException("Catalog item not found"));
     }
 
-    public CatalogItem getCatalogItemById(long id) {
-        return catalogItemRepository.findCatalogItemById(id).orElseThrow(EntityNotFoundException::new);
-    }
-
-    public CatalogItem getCatalogItemBySKU(String itemSKU) {
-        return catalogItemRepository.findCatalogItemByItemSKU(itemSKU).orElseThrow(EntityNotFoundException::new);
+    public Uni<CatalogItem> getCatalogItemBySKU(String itemSKU) {
+        return catalogItemRepository.findByItemSku(itemSKU)
+                .onItem().ifNull().failWith(() -> new NotFoundException("Catalog item not found"));
     }
 }

@@ -1,17 +1,17 @@
 # Catalog Service
 
 ## Background
-This is a simple web service application built upon Spring Boot technology.
-Main function of this app is to provide information about items in Catalog. 
+This is a simple web service application rebuilt on top of Quarkus 3 with a reactive stack (compatible with the Red Hat build of Quarkus). The main function of this app is to provide information about items in Catalog using non-blocking HTTP endpoints and Hibernate Reactive.
 
 ## Technology
 Technology Stack used in this project:
-1. Spring Boot 2.5.1
-2. PostgreSQL 12
+1. Quarkus 3 LTS platform (${quarkus.platform.version})
+2. Java 21
+3. Reactive RESTEasy with Jackson
+4. Hibernate Reactive with PostgreSQL
 
 ## Deployment
-This app will be deployed as standalone jar on top OCP.  We can use web console or CLI to deploy. 
-We are assuming you are logged in into your cluster.
+This app is packaged as a Quarkus runner JAR and can be deployed to OpenShift. We can use the web console or CLI to deploy.
 
 Deployment Steps:
 1. Create Project
@@ -19,16 +19,20 @@ Deployment Steps:
       oc new-project commerce-prd
    ```
 2. Create New Application
-   We deploy the application using `oc new-app` command:
+   Build and deploy the application using OpenJDK 21 and the Quarkus base image:
    ```shell
-   oc new-app openshift/java:openjdk-8-ubi8~https://github.com/rakhmad/catalog-service.git -e POSTGRESQL_HOST=postgresql --name=catalog-service 
-    ```
+   oc new-app registry.access.redhat.com/ubi9/openjdk-21:1.20-1~https://github.com/rakhmad/catalog-service.git \
+      -e QUARKUS_DATASOURCE_USERNAME=catalogsvc \
+      -e QUARKUS_DATASOURCE_PASSWORD=r3dh4t1! \
+      -e QUARKUS_DATASOURCE_REACTIVE_URL=postgresql://postgresql:5432/catalog \
+      --name=catalog-service
+   ```
 
 ## Development
-We use docker for database:
+Quarkus Dev Services can start PostgreSQL automatically during tests, but for local development you can still run Postgres with Docker:
 
 ```shell
-docker run -p 5432:5432 --name localdb -e POSTGRES_PASSWORD=<POSTGRES_PASSWORD> -d postgres:11
+docker run -p 5432:5432 --name localdb -e POSTGRES_PASSWORD=<POSTGRES_PASSWORD> -d postgres:16
 ```
 
 Connect to database, then create database, user and grant the access.
