@@ -1,49 +1,49 @@
 package id.redhat.demo.catalog;
 
-import javax.persistence.*;
+import io.quarkus.hibernate.reactive.panache.PanacheEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "catalog_item")
-public class CatalogItem {
-    /**
-     * Catalog contains multiple CatalogItems
-     * CatalogItems is representation for an item in the catalog.
-     * Properties for an CatalogItem
-     * 1. id
-     * 2. Name
-     * 3. Category
-     * 4. Short Description
-     * 5. Long Description
-     * 6. Price
-     * 7. Image URI
-     * 8. Enabled (can be seen)
-     * 9. Item UPC
-     * 10. Item SKU
-     */
+public class CatalogItem extends PanacheEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
     @Column(nullable = false)
     private String itemName;
+
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Category itemCategory = Category.GENERIC;
+
     @Column(nullable = false)
     private String shortDescription;
+
     @Column(nullable = false, columnDefinition = "TEXT")
     private String longDescription = "Long Default Description";
+
     @Column(precision = 2)
     private double itemPrice;
+
     @Column(name = "image_uri")
     private String imageURI = "/images/default.png";
+
     @Column(nullable = false)
     private boolean itemEnabled = true;
+
     @Column(nullable = false, name = "item_upc")
     private String itemUPC = "S123456M789012E";
+
     @Column(nullable = false, name = "item_sku")
     private String itemSKU = "SKU-XX-YYY-01";
 
-    public CatalogItem(String itemName, Category itemCategory, String shortDescription, String longDescription, double itemPrice, String imageURI) {
+    public CatalogItem() {
+    }
+
+    public CatalogItem(String itemName, Category itemCategory, String shortDescription, String longDescription, double itemPrice,
+                       String imageURI) {
         this.itemName = itemName;
         this.itemCategory = itemCategory;
         this.shortDescription = shortDescription;
@@ -56,17 +56,6 @@ public class CatalogItem {
         this.itemName = itemName;
         this.shortDescription = shortDescription;
         this.itemPrice = itemPrice;
-    }
-
-    public CatalogItem() {
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
     }
 
     public String getItemName() {
