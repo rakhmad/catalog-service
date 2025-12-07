@@ -1,13 +1,15 @@
 package id.redhat.demo.catalog;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import io.quarkus.hibernate.reactive.panache.PanacheQuery;
+import io.quarkus.hibernate.reactive.panache.PanacheRepositoryBase;
+import io.smallrye.mutiny.Uni;
+import jakarta.enterprise.context.ApplicationScoped;
 
-import java.util.Optional;
+@ApplicationScoped
+public class CatalogItemRepository implements PanacheRepositoryBase<CatalogItem, Long> {
 
-@Repository("catalogItemRepository")
-public interface CatalogItemRepository extends JpaRepository<CatalogItem, Long> {
-    Optional<CatalogItem> findCatalogItemById(Long itemId);
-
-    Optional<CatalogItem> findCatalogItemByItemSKU(String itemSKU);
+    public Uni<CatalogItem> findBySku(String sku) {
+        PanacheQuery<CatalogItem> query = find("itemSKU", sku);
+        return query.firstResult();
+    }
 }

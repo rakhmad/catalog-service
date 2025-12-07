@@ -1,28 +1,24 @@
 # Catalog Service
 
 ## Background
-This is a simple web service application built upon Spring Boot technology.
-Main function of this app is to provide information about items in Catalog. 
+This is a simple reactive web service application built upon the Red Hat build of Quarkus.
+Main function of this app is to provide information about items in Catalog.
 
 ## Technology
 Technology Stack used in this project:
-1. Spring Boot 2.5.1
+1. Red Hat build of Quarkus 3.27 (OpenJDK 21)
 2. PostgreSQL 12
 
 ## Deployment
-This app will be deployed as standalone jar on top OCP.  We can use web console or CLI to deploy. 
-We are assuming you are logged in into your cluster.
+The application now uses a reactive PostgreSQL client. Set the following environment variables to configure database connectivity:
 
-Deployment Steps:
-1. Create Project
-   ```shell
-      oc new-project commerce-prd
-   ```
-2. Create New Application
-   We deploy the application using `oc new-app` command:
-   ```shell
-   oc new-app openshift/java:openjdk-8-ubi8~https://github.com/rakhmad/catalog-service.git -e POSTGRESQL_HOST=postgresql --name=catalog-service 
-    ```
+```
+POSTGRESQL_HOST=<database host>
+POSTGRESQL_USERNAME=catalogsvc
+POSTGRESQL_PASSWORD=<password>
+```
+
+Quarkus Dev Services can also provision PostgreSQL automatically during development and testing when Docker is available.
 
 ## Development
 We use docker for database:
